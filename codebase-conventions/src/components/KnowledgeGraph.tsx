@@ -9,6 +9,9 @@ import type { KnowledgeGraph as TKnowledgeGraph, CodeNode as TCodeNode, CodeEdge
 export interface KnowledgeGraphProps {
   graph?: TKnowledgeGraph;
   height?: number | string;
+  // Optional filters to limit which nodes/edges are displayed
+  filterModules?: string[];
+  filterFilePaths?: string[];
 }
 
 type EdgeFilterKey = "imports" | "calls" | "inherits" | "uses" | "defines";
@@ -28,7 +31,7 @@ const EDGE_COLORS: Record<EdgeFilterKey, string> = {
   defines: "#ffb300",
 };
 
-export function KnowledgeGraph({ graph, height = "60vh" }: KnowledgeGraphProps) {
+export function KnowledgeGraph({ graph, height = "60vh", filterModules, filterFilePaths }: KnowledgeGraphProps) {
   const [filters, setFilters] = useState<Record<EdgeFilterKey, boolean>>({
     imports: true,
     calls: true,
@@ -49,6 +52,35 @@ export function KnowledgeGraph({ graph, height = "60vh" }: KnowledgeGraphProps) 
   const { nodes: rfNodes, edges: rfEdges } = useMemo(() => {
     if (!graph) return { nodes: [] as RFNode[], edges: [] as RFEdge[] };
 
+    // Apply optional module/filePath filters first to get a display graph
+    const filtersProvided = Boolean((filterModules && filterModules.length) || (filterFilePaths && filterFilePaths.length));
+    const moduleSet = new Set((filterModules ?? []).map((m) => String(m)));
+    const pathSet = new Set((filterFilePaths ?? []).map((p) => String(p)));
+
+    const nodeAllowed = (node: TCodeNode): boolean => {
+      if (!filtersProvided) return true;
+      const md = (node.metadata || {}) as Record<string, unknown>;
+      const moduleOf = (md.module as string) || (md.moduleName as string) || (node.label as string);
+      const filePathOf = (node.filePath as string | undefined) ?? undefined;
+
+      const moduleOk = moduleSet.size === 0 || (moduleOf && moduleSet.has(moduleOf));
+      const pathOk = pathSet.size === 0 || (filePathOf && pathSet.has(filePathOf));
+      // If both filters present, require both to match; if only one present, require that one
+      if (moduleSet.size > 0 && pathSet.size > 0) return Boolean(moduleOk && pathOk);
+      if (moduleSet.size > 0) return Boolean(moduleOk);
+      if (pathSet.size > 0) return Boolean(pathOk);
+      return true;
+    };
+
+    const allowedIds = new Set<string>();
+    for (const n of graph.nodes) {
+      if (nodeAllowed(n)) allowedIds.add(n.id);
+    }
+    const displayNodes = filtersProvided ? graph.nodes.filter((n) => allowedIds.has(n.id)) : graph.nodes;
+    const displayEdges = filtersProvided
+      ? graph.edges.filter((e) => allowedIds.has(e.source) && allowedIds.has(e.target))
+      : graph.edges;
+
     // Build layout: group by module, layers per type
     const HSPACE = 220;
     const VSPACE = 140;
@@ -68,7 +100,7 @@ export function KnowledgeGraph({ graph, height = "60vh" }: KnowledgeGraphProps) 
 
     const modules: string[] = [];
     const seen = new Set<string>();
-    for (const n of graph.nodes) {
+    for (const n of displayNodes) {
       if (n.type === "module" && !isExternal(n)) {
         const key = moduleKeyOf(n);
         if (!seen.has(key)) {
@@ -78,7 +110,7 @@ export function KnowledgeGraph({ graph, height = "60vh" }: KnowledgeGraphProps) 
       }
     }
     // Ensure we include nodes even if no explicit module node exists
-    for (const n of graph.nodes) {
+    for (const n of displayNodes) {
       const key = moduleKeyOf(n);
       if (key !== "__external__" && key !== "__unknown__" && !seen.has(key)) {
         seen.add(key);
@@ -94,7 +126,7 @@ export function KnowledgeGraph({ graph, height = "60vh" }: KnowledgeGraphProps) 
       if (node.type === "variable") return 3;
       return 4;
     }
-    for (const n of graph.nodes) {
+    for (const n of displayNodes) {
       const key = moduleKeyOf(n);
       const groupKey = key === "__external__" ? "__external__" : key;
       const layer = groupKey === "__external__" ? 0 : layerOf(n);
@@ -131,7 +163,7 @@ export function KnowledgeGraph({ graph, height = "60vh" }: KnowledgeGraphProps) 
     }
 
     // Map nodes
-    const rfNodesLocal: RFNode[] = graph.nodes.map((n) => {
+    const rfNodesLocal: RFNode[] = displayNodes.map((n) => {
       const pos = positions.get(n.id) || { x: 0, y: 0 };
       const palette = NODE_COLORS[n.type] || { bg: "#ECEFF1", border: "#546e7a" };
       const external = isExternal(n);
@@ -154,7 +186,7 @@ export function KnowledgeGraph({ graph, height = "60vh" }: KnowledgeGraphProps) 
     });
 
     // Map edges with filters and colors
-    const rfEdgesLocal: RFEdge[] = graph.edges
+    const rfEdgesLocal: RFEdge[] = displayEdges
       .filter((e) => (filters as any)[e.relation as EdgeFilterKey] !== false)
       .map((e) => {
         const rel = e.relation as EdgeFilterKey;
