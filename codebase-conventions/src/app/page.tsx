@@ -31,11 +31,19 @@ export default function Home() {
   const [stage, setStage] = useState<Stage>("idle");
   const [activeTab, setActiveTab] = useState<"graph" | "conventions">("graph");
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: "success" | "info" | "warning" | "error" }>({ open: false, message: "", severity: "info" });
+  const [selectedFileNames, setSelectedFileNames] = useState<string[]>([]);
 
   const graphRef = useRef<HTMLDivElement | null>(null);
   const convRef = useRef<HTMLDivElement | null>(null);
 
   const canAnalyze = useMemo(() => files.length > 0, [files.length]);
+  const availableModules = useMemo(() => {
+    // Approximate modules from filenames (without .py)
+    return Array.from(new Set(files.map((f) => {
+      const n = f.name;
+      return n.endsWith(".py") ? n.slice(0, -3) : n;
+    })));
+  }, [files]);
 
   const handleUploaderError = useCallback((m: string) => {
     setSnackbar({ open: true, message: m, severity: "error" });
@@ -96,6 +104,7 @@ export default function Home() {
     setMarkdown("");
     setStage("idle");
     setActiveTab("graph");
+    setSelectedFileNames([]);
   }
 
   return (
@@ -157,73 +166,116 @@ export default function Home() {
               <Typography variant="subtitle1" gutterBottom>
                 Input
               </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Use the uploader above to add files or paste snippets, then click Analyze.
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                Click a file to focus its graph/conventions.
               </Typography>
+              <Box component="nav" aria-label="uploaded files">
+                {files.length === 0 ? (
+                  <Typography variant="body2" color="text.secondary">No files yet</Typography>
+                ) : (
+                  <Stack spacing={0.5}>
+                    {files.map((f) => {
+                      const selected = selectedFileNames.includes(f.name);
+                      return (
+                        <Button
+                          key={f.name}
+                          size="small"
+                          variant={selected ? "contained" : "outlined"}
+                          onClick={() => {
+                            setSelectedFileNames((prev) => {
+                              if (prev.includes(f.name)) return prev.filter((n) => n !== f.name);
+                              return [f.name];
+                            });
+                            setActiveTab("graph");
+                            setTimeout(() => graphRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
+                          }}
+                          sx={{ justifyContent: "flex-start" }}
+                        >
+                          {f.name}
+                        </Button>
+                      );
+                    })}
+                    {files.length > 1 && (
+                      <Button size="small" onClick={() => setSelectedFileNames([])}>Clear selection</Button>
+                    )}
+                  </Stack>
+                )}
+              </Box>
             </Paper>
           </Grid>
-          <Grid size={{ xs: 12, md: 4, lg: 5 }}>
-            <div ref={graphRef} />
-            <Paper
-              variant={activeTab === "graph" ? "elevation" : "outlined"}
-              sx={{ p: 2, height: "100%", borderColor: activeTab === "graph" ? "primary.main" : undefined }}
-            >
-              <Stack spacing={1}>
-                <Typography variant="subtitle1">Knowledge Graph</Typography>
-                <Divider />
-                <Box sx={{ position: "relative", minHeight: 360 }}>
-                  {stage === "building" && (
-                    <Stack alignItems="center" justifyContent="center" sx={{ position: "absolute", inset: 0 }} spacing={1}>
-                      <CircularProgress size={24} />
-                      <Typography variant="body2" color="text.secondary">
-                        Building graph…
-                      </Typography>
-                    </Stack>
-                  )}
-                  {graph ? (
-                    <KnowledgeGraph graph={graph} height={420} />
-                  ) : (
-                    <Stack alignItems="center" justifyContent="center" sx={{ height: 360 }}>
-                      <Typography variant="body2" color="text.secondary">
-                        {stage === "building" ? "" : "No graph yet"}
-                      </Typography>
-                    </Stack>
-                  )}
-                </Box>
-              </Stack>
-            </Paper>
-          </Grid>
-          <Grid size={{ xs: 12, md: 4, lg: 4 }}>
-            <div ref={convRef} />
-            <Paper
-              variant={activeTab === "conventions" ? "elevation" : "outlined"}
-              sx={{ p: 2, height: "100%", borderColor: activeTab === "conventions" ? "primary.main" : undefined }}
-            >
-              <Stack spacing={1}>
-                <Typography variant="subtitle1">Conventions</Typography>
-                <Divider />
-                <Box sx={{ position: "relative", minHeight: 360 }}>
-                  {stage === "analyzing" && (
-                    <Stack alignItems="center" justifyContent="center" sx={{ position: "absolute", inset: 0 }} spacing={1}>
-                      <CircularProgress size={24} />
-                      <Typography variant="body2" color="text.secondary">
-                        Analyzing patterns…
-                      </Typography>
-                    </Stack>
-                  )}
-                  {markdown ? (
-                    <ConventionsViewer markdown={markdown} />
-                  ) : (
-                    <Stack alignItems="center" justifyContent="center" sx={{ height: 360 }}>
-                      <Typography variant="body2" color="text.secondary">
-                        {stage === "analyzing" ? "" : "No conventions yet"}
-                      </Typography>
-                    </Stack>
-                  )}
-                </Box>
-              </Stack>
-            </Paper>
-          </Grid>
+
+          {activeTab === "graph" && (
+            <Grid size={{ xs: 12, md: 8, lg: 9 }}>
+              <div ref={graphRef} />
+              <Paper
+                variant="elevation"
+                sx={{ p: 2, height: "100%", borderColor: "primary.main" }}
+              >
+                <Stack spacing={1}>
+                  <Typography variant="subtitle1">Knowledge Graph</Typography>
+                  <Divider />
+                  <Box sx={{ position: "relative", minHeight: 360 }}>
+                    {stage === "building" && (
+                      <Stack alignItems="center" justifyContent="center" sx={{ position: "absolute", inset: 0 }} spacing={1}>
+                        <CircularProgress size={24} />
+                        <Typography variant="body2" color="text.secondary">
+                          Building graph…
+                        </Typography>
+                      </Stack>
+                    )}
+                    {graph ? (
+                      <KnowledgeGraph
+                        graph={graph}
+                        height={420}
+                        filterModules={selectedFileNames.length ? availableModules.filter((m) => selectedFileNames.some((n) => n.startsWith(m))) : undefined}
+                        filterFilePaths={selectedFileNames.length ? files.filter((f) => selectedFileNames.includes(f.name)).map((f) => f.name) : undefined}
+                      />
+                    ) : (
+                      <Stack alignItems="center" justifyContent="center" sx={{ height: 360 }}>
+                        <Typography variant="body2" color="text.secondary">
+                          {stage === "building" ? "" : "No graph yet"}
+                        </Typography>
+                      </Stack>
+                    )}
+                  </Box>
+                </Stack>
+              </Paper>
+            </Grid>
+          )}
+
+          {activeTab === "conventions" && (
+            <Grid size={{ xs: 12, md: 8, lg: 9 }}>
+              <div ref={convRef} />
+              <Paper
+                variant="elevation"
+                sx={{ p: 2, height: "100%", borderColor: "primary.main" }}
+              >
+                <Stack spacing={1}>
+                  <Typography variant="subtitle1">Conventions</Typography>
+                  <Divider />
+                  <Box sx={{ position: "relative", minHeight: 360 }}>
+                    {stage === "analyzing" && (
+                      <Stack alignItems="center" justifyContent="center" sx={{ position: "absolute", inset: 0 }} spacing={1}>
+                        <CircularProgress size={24} />
+                        <Typography variant="body2" color="text.secondary">
+                          Analyzing patterns…
+                        </Typography>
+                      </Stack>
+                    )}
+                    {markdown ? (
+                      <ConventionsViewer markdown={markdown} />
+                    ) : (
+                      <Stack alignItems="center" justifyContent="center" sx={{ height: 360 }}>
+                        <Typography variant="body2" color="text.secondary">
+                          {stage === "analyzing" ? "" : "No conventions yet"}
+                        </Typography>
+                      </Stack>
+                    )}
+                  </Box>
+                </Stack>
+              </Paper>
+            </Grid>
+          )}
         </Grid>
 
         <Snackbar
