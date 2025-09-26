@@ -156,7 +156,7 @@ Deliverables
 
 ---
 
-### Step 6: Analyze API – Build Graph on Server
+### Step 6: Analyze API – Build Graph on Server **DONE**
 - Implement `src/app/api/analyze/route.ts` (POST):
   - Input: `{ files: {filename, content}[] } | { codeSnippets: string[] }`
   - Validate with `zod`
@@ -169,6 +169,24 @@ Acceptance criteria
 
 Deliverables
 - Analyze endpoint returning `KnowledgeGraph`
+
+FYI: cURL request for testing:
+
+```
+$ curl -X POST http://localhost:3000/api/analyze \
+  -H 'content-type: application/json' \
+  -d '{
+    "files": [
+      {"name":"example.py","content":"class UserService:\n  def get_user(self, id:int)->dict:\n    return self._fetch(id)\n  def _fetch(self, id:int):\n    return {\"id\": id}\n"}
+    ],
+    "options": { "includeDocstrings": true }
+  }'
+```
+
+Output:
+```
+{"graph":{"nodes":[{"id":"example:class:UserService:1","label":"UserService","type":"class","filePath":"example.py","line":1,"metadata":{"module":"example","baseClasses":[],"decorators":[],"code":"class UserService:\n  def get_user(self, id:int)->dict:\n    return self._fetch(id)\n  def _fetch(self, id:int):\n    return {\"id\": id}\n"}},{"id":"example:function:UserService._fetch:4","label":"UserService._fetch","type":"function","filePath":"example.py","line":4,"metadata":{"module":"example","class":"UserService","parameters":["self","id:int"],"isAsync":false,"isPrivate":true,"decorators":[],"code":"  def _fetch(self, id:int):\n    return {\"id\": id}\n"}},{"id":"example:function:UserService.get_user:2","label":"UserService.get_user","type":"function","filePath":"example.py","line":2,"metadata":{"module":"example","class":"UserService","parameters":["self","id:int"],"returnHint":"dict","isAsync":false,"isPrivate":false,"decorators":[],"code":"  def get_user(self, id:int)->dict:\n    return self._fetch(id)"}},{"id":"example:module:example:1","label":"example","type":"module","filePath":"example.py","line":1,"metadata":{"moduleName":"example","importAliases":{}}}],"edges":[{"id":"example:class:UserService:1|defines|example:function:UserService._fetch:4","source":"example:class:UserService:1","target":"example:function:UserService._fetch:4","relation":"defines","metadata":{"weight":1}},{"id":"example:class:UserService:1|defines|example:function:UserService.get_user:2","source":"example:class:UserService:1","target":"example:function:UserService.get_user:2","relation":"defines","metadata":{"weight":1}},{"id":"example:function:UserService.get_user:2|calls|example:function:UserService._fetch:4","source":"example:function:UserService.get_user:2","target":"example:function:UserService._fetch:4","relation":"calls","metadata":{"weight":1}},{"id":"example:module:example:1|defines|example:class:UserService:1","source":"example:module:example:1","target":"example:class:UserService:1","relation":"defines","metadata":{"weight":1}}]}}
+```
 
 ---
 
