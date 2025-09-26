@@ -207,7 +207,7 @@ Deliverables
 
 ---
 
-### Step 8: LLM Convention Analysis
+### Step 8: LLM Convention Analysis **DONE**
 - Implement `llm-analyzer.ts`:
   - Prepare prompt as specified in Requirements (graph JSON + code samples)
   - Call OpenAI's `gpt-5` via `@openai/sdk`
