@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "devtest:parser": "tsx src/lib/python-parser.devtest.ts"
   },
   "dependencies": {
     "@emotion/cache": "^11.14.0",

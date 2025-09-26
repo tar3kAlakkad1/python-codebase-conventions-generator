@@ -86,7 +86,7 @@ Deliverables
 
 ---
 
-### Step 2: Directory Layout and Type Definitions
+### Step 2: Directory Layout and Type Definitions **DONE**
 - Create directories per spec:
   - `src/app/` with `layout.tsx`, `page.tsx`, `api/analyze/route.ts`, `api/conventions/route.ts`
   - `src/components/` with `CodeUploader.tsx`, `KnowledgeGraph.tsx`, `ConventionsViewer.tsx`, `DownloadButton.tsx`
@@ -103,7 +103,7 @@ Deliverables
 
 ---
 
-### Step 3: Code Input UI
+### Step 3: Code Input UI- **DONE**
 - Build `CodeUploader.tsx` using `react-dropzone` for `.py` files (≤ 5MB each)
 - Add a textarea for code paste (single or multiple snippets)
 - Validate inputs with `zod` (extension, size, non-empty, reasonable character set)
