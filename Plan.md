@@ -120,7 +120,7 @@ Deliverables
 
 ---
 
-### Step 4: Python Parsing (Regex-first MVP)
+### Step 4: Python Parsing (Regex-first MVP) **DONE**
 - Implement `python-parser.ts` to extract:
   - Functions: name, parameters, return hint, async flag, privacy (`_` prefix)
   - Classes: name, base classes, decorators on methods
@@ -139,7 +139,7 @@ Deliverables
 
 ---
 
-### Step 5: Knowledge Graph Builder
+### Step 5: Knowledge Graph Builder **DONE**
 - Implement `graph-builder.ts` with:
   - `buildKnowledgeGraph(parsedModules): KnowledgeGraph`
   - Node IDs are globally unique (e.g., `${module}:${type}:${name}:${line}`)
