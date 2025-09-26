@@ -12,7 +12,7 @@ Goal: Build a Next.js app that ingests Python files, constructs a knowledge grap
 
 ---
 
-### Step 0: Prerequisites and Environment
+### Step 0: Prerequisites and Environment - **DONE**
 - Install Node 20+, PNPM or NPM
 - Create Anthropic account and obtain `ANTHROPIC_API_KEY`
 - Install Vercel CLI and log in
@@ -24,7 +24,8 @@ Acceptance criteria
 Deliverables
 - `.env.local`
 
-DONE BY USER - here are the commands ran for the setup: 
+
+Done by user - here are the commands ran for the setup: 
 
 ```
 npx create-next-app@latest
@@ -67,7 +68,7 @@ Installing devDependencies:
 
 ---
 
-### Step 1: Project Scaffolding and Dependencies
+### Step 1: Project Scaffolding and Dependencies - **DONE**
 - Create Next.js 15 App Router project with TypeScript
 - Install dependencies per requirements
   - `@mui/material @mui/icons-material @emotion/react @emotion/styled`
@@ -108,6 +109,7 @@ Deliverables
 - Validate inputs with `zod` (extension, size, non-empty, reasonable character set)
 - Surface errors via MUI `Snackbar`
 - Emit a normalized array of `{ filename, content }` to parent
+- Use MUI for all components that you may need.
 
 Acceptance criteria
 - Drag-and-drop accepts only `.py` and rejects others with clear messaging
