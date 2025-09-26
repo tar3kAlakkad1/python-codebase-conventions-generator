@@ -190,7 +190,7 @@ Output:
 
 ---
 
-### Step 7: Graph Visualization
+### Step 7: Graph Visualization **DONE**
 - Build `KnowledgeGraph.tsx` using React Flow
   - Color-code by type: function (blue), class (green), module (purple), variable (orange)
   - Hierarchical layout (top-to-bottom); group by module
@@ -210,7 +210,7 @@ Deliverables
 ### Step 8: LLM Convention Analysis
 - Implement `llm-analyzer.ts`:
   - Prepare prompt as specified in Requirements (graph JSON + code samples)
-  - Call Anthropic `claude-sonnet-4-20250514` via `@anthropic-ai/sdk`
+  - Call OpenAI's `gpt-5` via `@openai/sdk`
   - Config: max tokens 4000, temperature 0.2, 45s timeout
   - Return markdown for `conventions.md`
 - Add offline fallback when no API key: minimal heuristic-based conventions
