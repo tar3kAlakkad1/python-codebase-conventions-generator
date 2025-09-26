@@ -237,7 +237,7 @@ Deliverables
 
 ---
 
-### Step 10: App Shell, Layout, and Flow Integration
+### Step 10: App Shell, Layout, and Flow Integration **DONE**
 - `layout.tsx`: MUI theme, fonts, color mode baseline
 - `page.tsx`: three-column layout with MUI Grid
   - Left: `CodeUploader`
