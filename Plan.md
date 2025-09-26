@@ -223,7 +223,7 @@ Deliverables
 
 ---
 
-### Step 9: Conventions API – Generate Markdown
+### Step 9: Conventions API – Generate Markdown **DONE**
 - Implement `src/app/api/conventions/route.ts` (POST):
   - Input: `{ graph: KnowledgeGraph, codeSnippets: string[] }`
   - Validate with `zod`
