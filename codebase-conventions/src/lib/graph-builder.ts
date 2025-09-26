@@ -47,7 +47,7 @@ export function buildKnowledgeGraphFromParsedModules(parsed: ParseResult | Parse
     return merged;
   }
 
-  function addEdge(source: string, relation: string, target: string, extra?: Record<string, unknown>) {
+  function addEdge(source: string, relation: string, target: string) {
     const key = `${source}|${relation}|${target}`;
     const prev = edgeWeightByKey.get(key) ?? 0;
     edgeWeightByKey.set(key, prev + 1);

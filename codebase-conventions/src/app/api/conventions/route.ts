@@ -3,7 +3,7 @@ import { z } from "zod";
 import type { KnowledgeGraph } from "@/lib/types";
 import analyzeGraphWithLLM from "@/lib/llm-analyzer";
 
-export async function GET(_req: NextRequest) {
+export async function GET() {
   return NextResponse.json({ ok: true, conventions: [] });
 }
 

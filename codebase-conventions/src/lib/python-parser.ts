@@ -69,7 +69,7 @@ function parseImports(lines: string[]): ParsedImport[] {
     // from x.y import a as b, c
     let m = line.match(/^\s*from\s+([\w\.]+)\s+import\s+(.+)$/);
     if (m) {
-      const module = m[1];
+      const moduleName = m[1];
       const rhs = m[2].split(",").map((t) => t.trim());
       const names = rhs
         .filter((t) => t.length > 0)
@@ -78,7 +78,7 @@ function parseImports(lines: string[]): ParsedImport[] {
           if (asMatch) return { name: asMatch[1], alias: asMatch[2] };
           return { name: t };
         });
-      results.push({ importType: "from", module, names, line: i + 1, code: trimmed });
+      results.push({ importType: "from", module: moduleName, names, line: i + 1, code: trimmed });
       continue;
     }
 
@@ -93,8 +93,8 @@ function parseImports(lines: string[]): ParsedImport[] {
           if (asMatch) return { name: asMatch[1], alias: asMatch[2] };
           return { name: t };
         });
-      const module = names.length > 0 ? names[0].name : "";
-      results.push({ importType: "import", module, names, line: i + 1, code: trimmed });
+      const moduleName = names.length > 0 ? names[0].name : "";
+      results.push({ importType: "import", module: moduleName, names, line: i + 1, code: trimmed });
       continue;
     }
   }
@@ -165,7 +165,7 @@ function parseClassesAndFunctions(
     const indent = getIndent(curr);
 
     // class
-    let mClass = curr.match(/^(\t|\s)*class\s+([A-Za-z_]\w*)(?:\(([^)]*)\))?\s*:/);
+    const mClass = curr.match(/^(\t|\s)*class\s+([A-Za-z_]\w*)(?:\(([^)]*)\))?\s*:/);
     if (mClass) {
       const classIndentLen = indent.length;
       const name = mClass[2];
@@ -321,7 +321,7 @@ function extractDocstringIfFirst(
   defIndentLen: number,
   includeDocstrings: boolean
 ): { docstring?: string; firstBodyLine: number } {
-  let firstBodyLine = startIdx + 1;
+  const firstBodyLine = startIdx + 1;
   if (!includeDocstrings) {
     return { firstBodyLine };
   }

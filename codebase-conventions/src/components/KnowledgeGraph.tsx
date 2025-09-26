@@ -4,7 +4,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import { Box, Stack, Typography, Divider, FormGroup, FormControlLabel, Checkbox, Drawer, Chip } from "@mui/material";
 import ReactFlow, { Background, BackgroundVariant, Controls, MarkerType, Node as RFNode, Edge as RFEdge } from "reactflow";
 import "reactflow/dist/style.css";
-import type { KnowledgeGraph as TKnowledgeGraph, CodeNode as TCodeNode, CodeEdge as TCodeEdge } from "@/lib/types";
+import type { KnowledgeGraph as TKnowledgeGraph, CodeNode as TCodeNode } from "@/lib/types";
 
 export interface KnowledgeGraphProps {
   graph?: TKnowledgeGraph;
@@ -87,7 +87,10 @@ export function KnowledgeGraph({ graph, height = "60vh", filterModules, filterFi
     const GROUP_GAP = 120;
 
     function isExternal(node: TCodeNode): boolean {
-      return Boolean((node.metadata as any)?.external);
+      const md = node.metadata as Record<string, unknown> | undefined;
+      if (!md) return false;
+      const val = (md as Record<string, unknown>)["external"];
+      return typeof val === "boolean" ? val : Boolean(val);
     }
 
     function moduleKeyOf(node: TCodeNode): string {
@@ -186,10 +189,22 @@ export function KnowledgeGraph({ graph, height = "60vh", filterModules, filterFi
     });
 
     // Map edges with filters and colors
+<<<<<<< HEAD
     const rfEdgesLocal: RFEdge[] = displayEdges
       .filter((e) => (filters as any)[e.relation as EdgeFilterKey] !== false)
+=======
+    function isEdgeFilterKey(rel: string): rel is EdgeFilterKey {
+      return rel === "imports" || rel === "calls" || rel === "inherits" || rel === "uses" || rel === "defines";
+    }
+
+    const rfEdgesLocal: RFEdge[] = graph.edges
+      .filter((e) => {
+        const rel = e.relation;
+        return isEdgeFilterKey(rel) ? filters[rel] !== false : true;
+      })
+>>>>>>> 15b7003 (fixed build errs)
       .map((e) => {
-        const rel = e.relation as EdgeFilterKey;
+        const rel = isEdgeFilterKey(e.relation) ? e.relation : "uses";
         const color = EDGE_COLORS[rel] || "#78909c";
         return {
           id: e.id,
