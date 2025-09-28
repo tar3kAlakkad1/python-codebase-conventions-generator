@@ -1,5 +1,5 @@
 ## Overview
-Creates a knowledge graph and a `conventions.md` file given a Python file(s).
+Creates a knowledge graph and a `conventions.md` file given (a) Python file(s).
 
 Python was the language chosen as this had to be completed in a 3-hour hackathon.
 
