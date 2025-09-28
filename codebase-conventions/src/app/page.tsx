@@ -110,7 +110,7 @@ export default function Home() {
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
       <Stack spacing={2}>
-        <Typography variant="h4">Codebase Convention Analyzer</Typography>
+        <Typography variant="h4">Codebase Convention</Typography>
 
         <Paper variant="outlined" sx={{ p: 2 }}>
           <Stack spacing={2}>
