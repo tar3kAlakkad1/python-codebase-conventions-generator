@@ -189,27 +189,27 @@ export function KnowledgeGraph({ graph, height = "60vh", filterModules, filterFi
     });
 
     // Map edges with filters and colors
-    function isEdgeFilterKey(rel: string): rel is EdgeFilterKey {
-      return rel === "imports" || rel === "calls" || rel === "inherits" || rel === "uses" || rel === "defines";
-    }
+function isEdgeFilterKey(rel: string): rel is EdgeFilterKey {
+  return rel === "imports" || rel === "calls" || rel === "inherits" || rel === "uses" || rel === "defines";
+}
 
-    const rfEdgesLocal: RFEdge[] = displayEdges
-      .filter((e) => {
-        const rel = e.relation;
-        return isEdgeFilterKey(rel) ? filters[rel] !== false : true;
-      })
-      .map((e) => {
-        const rel = isEdgeFilterKey(e.relation) ? e.relation : "uses";
-        const color = EDGE_COLORS[rel] || "#78909c";
-        return {
-          id: e.id,
-          source: e.source,
-          target: e.target,
-          animated: rel === "calls",
-          style: { stroke: color, strokeWidth: 1.5 },
-          markerEnd: { type: MarkerType.ArrowClosed, color },
-        } satisfies RFEdge;
-      });
+const rfEdgesLocal: RFEdge[] = displayEdges
+  .filter((e) => {
+    const rel = e.relation;
+    return isEdgeFilterKey(rel) ? filters[rel] !== false : true;
+  })
+  .map((e) => {
+    const rel = isEdgeFilterKey(e.relation) ? e.relation : "uses";
+    const color = EDGE_COLORS[rel] || "#78909c";
+    return {
+      id: e.id,
+      source: e.source,
+      target: e.target,
+      animated: rel === "calls",
+      style: { stroke: color, strokeWidth: 1.5 },
+      markerEnd: { type: MarkerType.ArrowClosed, color },
+    } satisfies RFEdge;
+  });
 
     return { nodes: rfNodesLocal, edges: rfEdgesLocal };
   }, [graph, filters, filterModules, filterFilePaths]);
