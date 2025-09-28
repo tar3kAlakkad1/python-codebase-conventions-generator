@@ -116,8 +116,8 @@ export function CodeUploader({
           continue;
         }
         parsed.push({ name: file.name, content: text });
-      } catch {
-        notifyError(`${file.name}: Failed to read file`);
+      } catch (error) {
+        notifyError(`${file.name}: Failed to read file ${error}`);
       }
     }
 
