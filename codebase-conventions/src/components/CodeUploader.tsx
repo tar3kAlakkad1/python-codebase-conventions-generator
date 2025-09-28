@@ -116,8 +116,8 @@ export function CodeUploader({
           continue;
         }
         parsed.push({ name: file.name, content: text });
-      } catch (err) {
-        notifyError(`${file.name}: Failed to read file`);
+      } catch (error) {
+        notifyError(`${file.name}: Failed to read file ${error}`);
       }
     }
 
@@ -126,7 +126,7 @@ export function CodeUploader({
       const existingNames = new Set(items.map((it) => it.name));
       const merged: UploadedFile[] = [...items];
       for (const p of parsed) {
-        let base = p.name;
+        const base = p.name;
         let candidate = base;
         let counter = 1;
         while (existingNames.has(candidate)) {

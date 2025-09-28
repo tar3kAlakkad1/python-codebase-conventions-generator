@@ -66,7 +66,7 @@ export async function analyzeGraphWithLLM(
     // Fallback if model returned nothing
     const markdown = generateHeuristicMarkdown(graph, samples);
     return { markdown, model: "offline-heuristics", usedOffline: true };
-  } catch (_err) {
+  } catch {
     const markdown = generateHeuristicMarkdown(graph, samples);
     return { markdown, model: "offline-heuristics", usedOffline: true };
   }

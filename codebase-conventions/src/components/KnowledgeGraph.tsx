@@ -212,7 +212,7 @@ export function KnowledgeGraph({ graph, height = "60vh", filterModules, filterFi
       });
 
     return { nodes: rfNodesLocal, edges: rfEdgesLocal };
-  }, [graph, filters]);
+  }, [graph, filters, filterModules, filterFilePaths]);
 
   const onNodeClick = useCallback((_: React.MouseEvent, node: RFNode) => {
     setSelectedNodeId(node.id);
